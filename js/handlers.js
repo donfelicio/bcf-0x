@@ -11,6 +11,12 @@ const errors_1 = require('./errors');
 const orderbook_1 = require('./orderbook');
 const paginator_1 = require('./paginator');
 const utils_1 = require('./utils');
+
+const path = require('path');
+const publicPath = path.join(__dirname,'../public');
+
+
+
 const parsePaginationConfig = req => {
     const page = _.isUndefined(req.query.page) ? constants_1.DEFAULT_PAGE : Number(req.query.page);
     const perPage = _.isUndefined(req.query.perPage) ? constants_1.DEFAULT_PER_PAGE : Number(req.query.perPage);
@@ -79,7 +85,9 @@ class Handlers {
         utils_1.utils.validateSchema(req.query, json_schemas_1.schemas.ordersRequestOptsSchema);
         const { page, perPage } = parsePaginationConfig(req);
         const paginatedOrders = await this._orderBook.getOrdersAsync(page, perPage, req.query);
-        res.status(HttpStatus.OK).send(paginatedOrders);
+        //res.status(HttpStatus.OK).send(paginatedOrders);
+        res.status(HttpStatus.OK).render('index', { pagename: 'TEST', data: paginatedOrders });
+        console.log(paginatedOrders)
     }
     async orderbookAsync(req, res) {
         utils_1.utils.validateSchema(req.query, json_schemas_1.schemas.orderBookRequestSchema);

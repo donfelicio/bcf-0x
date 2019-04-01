@@ -12,11 +12,21 @@ const handlers_1 = require('./handlers');
 const error_handling_1 = require('./middleware/error_handling');
 const url_params_parsing_1 = require('./middleware/url_params_parsing');
 const utils_1 = require('./utils');
+
+const swig = require('swig');
+
 (async () => {
     await db_connection_1.initDBConnectionAsync();
     const handlers = new handlers_1.Handlers();
     await handlers.initOrderBookAsync();
     const app = express();
+    
+        // This is where all the magic happens!
+    app.engine('html', swig.renderFile);
+
+    app.set('view engine', 'html'); 
+    app.set('views', __dirname + '/../views');
+
     app.use(cors());
     app.use(bodyParser.json());
     app.use(url_params_parsing_1.urlParamsParsing);
