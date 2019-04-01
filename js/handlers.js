@@ -87,7 +87,6 @@ class Handlers {
         const paginatedOrders = await this._orderBook.getOrdersAsync(page, perPage, req.query);
         //res.status(HttpStatus.OK).send(paginatedOrders);
         res.status(HttpStatus.OK).render('index', { pagename: 'TEST', data: paginatedOrders });
-        console.log(paginatedOrders)
     }
     async orderbookAsync(req, res) {
         utils_1.utils.validateSchema(req.query, json_schemas_1.schemas.orderBookRequestSchema);
