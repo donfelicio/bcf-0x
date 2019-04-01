@@ -8,7 +8,7 @@
     "scripts": {
         "prettier": "yarn prettier:js && yarn prettier:ts",
         "prettier:js": "prettier --write 'js/**/*.js' --config .prettierrc",
-        "start:js": "node -r dotenv/config js/index.js"
+        "start:js": "nodemon -r dotenv/config js/index.js"
     },
     "devDependencies": {
         "@0x/tslint-config": "^3.0.0",
