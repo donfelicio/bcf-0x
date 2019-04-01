@@ -1,0 +1,19 @@
+<h1>{{ pagename|title }}</h1>
+
+<p>Total: {{data.total}}</p>
+<p>Page: {{data.page}}</p>
+<p>Items per page: {{data.perPage}}</p>
+{% if !data.records.length %}
+<p>No records</p>
+{% else %}
+
+	{% for record in data.records %}
+		<p>record: {{record}}</p>
+	{% endfor %}
+{% endif %}
+
+<ul>
+<!-- {% for author in authors %}
+    <li{% if loop.first %} class="first"{% endif %}>{{ author }}</li>
+{% endfor %} -->
+</ul>
