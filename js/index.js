@@ -64,7 +64,20 @@ const swig = require('swig');
      * GET Order endpoint retrieves the order by order hash.
      * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/getOrder
      */
+    app.post('/v2/sign_order', asyncHandler(handlers.signAndPostOrderAsync.bind(handlers)));
+    /**
+     * GET Order endpoint retrieves the order by order hash.
+     * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/getOrder
+     */
+     app.post('/v2/get-hex', asyncHandler(handlers.getHexAsync.bind(handlers)));
+    /**
+     * GET Order endpoint retrieves the order by order hash.
+     * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/getOrder
+     */
     app.get('/v2/order/:orderHash', asyncHandler(handlers_1.Handlers.getOrderByHashAsync.bind(handlers_1.Handlers)));
+    app.get('/v2/test_order', (req, res) => {
+        res.status(200).render('create', {});
+    })
     app.use(error_handling_1.errorHandler);
     app.listen(config.HTTP_PORT, () => {
         utils_1.utils.log(

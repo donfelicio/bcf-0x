@@ -17,10 +17,7 @@ var EnvVarType;
     EnvVarType[(EnvVarType['Url'] = 4)] = 'Url';
 })(EnvVarType || (EnvVarType = {}));
 // Whitelisted token addresses. Set to a '*' instead of an array to allow all tokens.
-exports.WHITELISTED_TOKENS = [
-    '0x2002d3812f58e35f0ea1ffbf80a75a38c32175fa',
-    '0xd0a1e359811322d97991e03f863a0c30c2cf029c',
-];
+exports.WHITELISTED_TOKENS = '*';
 // Network port to listen on
 exports.HTTP_PORT = _.isEmpty(process.env.HTTP_PORT)
     ? 3000
@@ -43,7 +40,7 @@ exports.TAKER_FEE_ZRX_UNIT_AMOUNT = _.isEmpty(process.env.TAKER_FEE_ZRX_UNIT_AMO
     : assertEnvVarType('TAKER_FEE_ZRX_UNIT_AMOUNT', process.env.TAKER_FEE_ZRX_UNIT_AMOUNT, EnvVarType.UnitAmount);
 // Ethereum RPC url
 exports.RPC_URL = _.isEmpty(process.env.RPC_URL)
-    ? 'https://kovan.infura.io/v3/e2c067d9717e492091d1f1d7a2ec55aa'
+    ? 'http://127.0.0.1:8545'
     : assertEnvVarType('RPC_URL', process.env.RPC_URL, EnvVarType.Url);
 // A time window after which the order is considered permanently expired
 exports.ORDER_SHADOWING_MARGIN_MS = 100 * 1000; // tslint:disable-line custom-no-magic-numbers

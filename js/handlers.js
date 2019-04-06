@@ -12,10 +12,18 @@ const orderbook_1 = require('./orderbook');
 const paginator_1 = require('./paginator');
 const utils_1 = require('./utils');
 
+//imports from Felix Lepoutre
 const path = require('path');
 const publicPath = path.join(__dirname,'../public');
+const provider_engine_1 = require("../provider_engine");
+const configs_1 = require("../configs.js");
 
-
+var contractWrappers, web3Wrapper;
+contractWrappers = new _0x_js_1.ContractWrappers(provider_engine_1.providerEngine, { networkId: configs_1.NETWORK_CONFIGS.networkId });
+web3Wrapper = new web3_wrapper_1.Web3Wrapper(provider_engine_1.providerEngine);
+web3Wrapper.getAvailableAddressesAsync().then((addresses) => {
+    console.log(addresses);
+});
 
 const parsePaginationConfig = req => {
     const page = _.isUndefined(req.query.page) ? constants_1.DEFAULT_PAGE : Number(req.query.page);
@@ -117,6 +125,51 @@ class Handlers {
         }
         res.status(HttpStatus.OK).send();
     }
+    //Function by Felix Lepoutre
+    async signAndPostOrderAsync(req, res) {
+        const completeOrder = await completeOrderAsync(req.body);
+        console.log(completeOrder);
+        utils_1.utils.validateSchema(completeOrder, json_schemas_1.schemas.signedOrderSchema);
+        if (config_1.WHITELISTED_TOKENS !== '*') {
+            const allowedTokens = config_1.WHITELISTED_TOKENS;
+            validateAssetDataIsWhitelistedOrThrow(allowedTokens, completeOrder.makerAssetData, 'makerAssetData');
+            validateAssetDataIsWhitelistedOrThrow(allowedTokens, completeOrder.takerAssetData, 'takerAssetData');
+        }
+        try {
+            await this._orderBook.addOrderAsync(completeOrder);
+        } catch (err) {
+            throw new errors_1.ValidationError([
+                {
+                    field: 'completeOrder',
+                    code: errors_1.ValidationErrorCodes.InvalidOrder,
+                    reason: err.message,
+                },
+            ]);
+        }
+        res.status(HttpStatus.OK).send();
+    }
+    async getHexAsync(req, res) {
+        const completeOrder = await returnHexAsync(req.body);
+        console.log(completeOrder);
+        utils_1.utils.validateSchema(completeOrder, json_schemas_1.schemas.signedOrderSchema);
+        if (config_1.WHITELISTED_TOKENS !== '*') {
+            const allowedTokens = config_1.WHITELISTED_TOKENS;
+            validateAssetDataIsWhitelistedOrThrow(allowedTokens, completeOrder.makerAssetData, 'makerAssetData');
+            validateAssetDataIsWhitelistedOrThrow(allowedTokens, completeOrder.takerAssetData, 'takerAssetData');
+        }
+        try {
+            await this._orderBook.addOrderAsync(completeOrder);
+        } catch (err) {
+            throw new errors_1.ValidationError([
+                {
+                    field: 'completeOrder',
+                    code: errors_1.ValidationErrorCodes.InvalidOrder,
+                    reason: err.message,
+                },
+            ]);
+        }
+        res.status(HttpStatus.OK).send(completeOrder);
+    }
 }
 exports.Handlers = Handlers;
 function validateAssetDataIsWhitelistedOrThrow(allowedTokens, assetData, field) {
@@ -150,3 +203,60 @@ function unmarshallOrder(signedOrderRaw) {
     };
     return signedOrder;
 }
+//Function to sign raw order by Felix Lepoutre
+async function completeOrderAsync(order){
+    const unsignedOrderRaw = order;
+    let unsignedOrder = {
+        ...unsignedOrderRaw,
+        salt: new _0x_js_1.generatePseudoRandomSalt(),
+        makerAssetData: _0x_js_1.assetDataUtils.encodeERC20AssetData(unsignedOrderRaw.makerAssetAddress),
+        takerAssetData: _0x_js_1.assetDataUtils.encodeERC20AssetData(unsignedOrderRaw.takerAssetAddress),
+        makerAssetAmount: new _0x_js_1.BigNumber(unsignedOrderRaw.makerAssetAmount),
+        takerAssetAmount: new _0x_js_1.BigNumber(unsignedOrderRaw.takerAssetAmount),
+        makerFee: new _0x_js_1.BigNumber(config_1.MAKER_FEE_ZRX_UNIT_AMOUNT),
+        takerFee: new _0x_js_1.BigNumber(config_1.TAKER_FEE_ZRX_UNIT_AMOUNT),
+        expirationTimeSeconds: new _0x_js_1.BigNumber(unsignedOrderRaw.expirationTimeSeconds),
+    };
+    const makerAddress = unsignedOrder.makerAssetAddress;
+    delete unsignedOrder.makerAssetAddress;
+    delete unsignedOrder.takerAssetAddress;
+
+    const completeOrder = {
+        ...unsignedOrder,
+        signature: _0x_js_1.orderHashUtils.getOrderHashHex(unsignedOrder),
+    }
+    
+    // console.log(web3.currentProvider);
+    const signedOrder = await _0x_js_1.signatureUtils.ecSignHashAsync(provider_engine_1.providerEngine, completeOrder.signature, makerAddress);
+    return(signedOrder);
+}
+
+async function returnHexAsync(order){
+    const unsignedOrderRaw = order;
+    let unsignedOrder = {
+        ...unsignedOrderRaw,
+        salt: new _0x_js_1.generatePseudoRandomSalt(),
+        makerAssetData: _0x_js_1.assetDataUtils.encodeERC20AssetData(unsignedOrderRaw.makerAssetAddress),
+        takerAssetData: _0x_js_1.assetDataUtils.encodeERC20AssetData(unsignedOrderRaw.takerAssetAddress),
+        makerAssetAmount: new _0x_js_1.BigNumber(unsignedOrderRaw.makerAssetAmount),
+        takerAssetAmount: new _0x_js_1.BigNumber(unsignedOrderRaw.takerAssetAmount),
+        makerFee: new _0x_js_1.BigNumber(config_1.MAKER_FEE_ZRX_UNIT_AMOUNT),
+        takerFee: new _0x_js_1.BigNumber(config_1.TAKER_FEE_ZRX_UNIT_AMOUNT),
+        expirationTimeSeconds: new _0x_js_1.BigNumber(unsignedOrderRaw.expirationTimeSeconds),
+    };
+    const makerAddress = unsignedOrder.makerAssetAddress;
+    delete unsignedOrder.makerAssetAddress;
+    delete unsignedOrder.takerAssetAddress;
+
+    const completeOrder = {
+        ...unsignedOrder,
+        signature: _0x_js_1.orderHashUtils.getOrderHashHex(unsignedOrder),
+    }
+
+    return(completeOrder);
+
+}
+
+ 
+// console.log('test3');
+// console.log(signedOrder);
