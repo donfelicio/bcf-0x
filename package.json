@@ -9,12 +9,8 @@
         "prettier": "yarn prettier:js && yarn prettier:ts",
         "prettier:js": "prettier --write 'js/**/*.js' --config .prettierrc",
         "start:js": "nodemon -r dotenv/config js/index.js",
-        "ganache-cli": "cross-env ganache-cli --noVMErrorsOnRPCResponse --gasLimit 10000000 --db 0x_ganache_snapshot  -p 8545 --networkId 50 -m \"concert load couple harbor equip island argue ramp clarify fence smart topic\"",
-        "download_snapshot": "cross-env-shell download --extract --strip 1 --out 0x_ganache_snapshot ${npm_package_config_snapshot_url}"
-    },
-    "config": {
-        "mnemonic": "concert load couple harbor equip island argue ramp clarify fence smart topic",
-        "snapshot_url": "http://ganache-snapshots.0x.org.s3.amazonaws.com/0x_ganache_snapshot-2.4.0.zip"
+        "download_snapshot": "cross-env-shell download --extract --strip 1 --out 0x_ganache_snapshot ${npm_package_config_snapshot_url}",
+        "ganache-cli": "cross-env ganache-cli --noVMErrorsOnRPCResponse --gasLimit 10000000 --db 0x_ganache_snapshot  -p 8545 --networkId 50 -m \"luggage syrup unfair mixture inspire metal play fitness buzz ski betray found\""
     },
     "devDependencies": {
         "@0x/tslint-config": "^3.0.0",
@@ -27,6 +23,10 @@
         "shx": "^0.3.2",
         "tslint": "^5.11.0",
         "typescript": "^3.0.3"
+    },
+    "config": {
+        "mnemonic": "concert load couple harbor equip island argue ramp clarify fence smart topic",
+        "snapshot_url": "http://ganache-snapshots.0x.org.s3.amazonaws.com/0x_ganache_snapshot-2.4.0.zip"
     },
     "dependencies": {
         "0x.js": "^4.0.1",
@@ -43,19 +43,19 @@
         "@babel/polyfill": "^7.0.0",
         "body-parser": "^1.18.3",
         "cors": "^2.8.5",
-        "cross-env": "^5.2.0",
+        "cross-env": "^5.1.4",
         "dotenv": "^6.2.0",
-        "download-cli": "^1.1.1",
+        "download-cli": "^1.0.5",
         "express": "^4.16.3",
         "express-async-handler": "^1.1.4",
         "forever": "^0.15.3",
-        "ganache-cli": "^6.4.2",
+        "ganache-cli": "6.1.6",
         "http-status-codes": "^1.3.0",
         "jsonschema": "^1.2.4",
         "lodash": "^4.17.11",
+        "nodemon": "^1.18.10",
         "reflect-metadata": "^0.1.10",
         "sqlite3": "^4.0.2",
-        "swig": "^1.4.2",
         "typeorm": "0.2.7"
     }
 }

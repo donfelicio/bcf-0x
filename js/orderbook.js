@@ -131,14 +131,10 @@ class OrderBook {
     }
     async addOrderAsync(signedOrder) {
         const connection = db_connection_1.getDBConnection();
-        console.log('step 0');
         await this._contractWrappers.exchange.validateOrderFillableOrThrowAsync(signedOrder);
-        console.log('step 1');
         await this._orderWatcher.addOrderAsync(signedOrder);
-        console.log('step 2');
         const signedOrderModel = serializeOrder(signedOrder);
         await connection.manager.save(signedOrderModel);
-        console.log('step 3');
     }
     async getOrderBookAsync(page, perPage, baseAssetData, quoteAssetData) {
         const connection = db_connection_1.getDBConnection();

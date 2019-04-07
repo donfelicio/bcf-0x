@@ -12,21 +12,11 @@ const handlers_1 = require('./handlers');
 const error_handling_1 = require('./middleware/error_handling');
 const url_params_parsing_1 = require('./middleware/url_params_parsing');
 const utils_1 = require('./utils');
-
-const swig = require('swig');
-
 (async () => {
     await db_connection_1.initDBConnectionAsync();
     const handlers = new handlers_1.Handlers();
     await handlers.initOrderBookAsync();
     const app = express();
-    
-        // This is where all the magic happens!
-    app.engine('html', swig.renderFile);
-
-    app.set('view engine', 'html'); 
-    app.set('views', __dirname + '/../views');
-
     app.use(cors());
     app.use(bodyParser.json());
     app.use(url_params_parsing_1.urlParamsParsing);
@@ -64,20 +54,17 @@ const swig = require('swig');
      * GET Order endpoint retrieves the order by order hash.
      * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/getOrder
      */
-    app.post('/v2/sign_order', asyncHandler(handlers.signAndPostOrderAsync.bind(handlers)));
+     app.get('/v2/test', asyncHandler(handlers.test.bind(handlers)));
     /**
      * GET Order endpoint retrieves the order by order hash.
      * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/getOrder
      */
-     app.post('/v2/get-hex', asyncHandler(handlers.getHexAsync.bind(handlers)));
+     app.post('/v2/sign_order', asyncHandler(handlers.signAndPostOrderAsync.bind(handlers)));
     /**
      * GET Order endpoint retrieves the order by order hash.
      * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/getOrder
      */
     app.get('/v2/order/:orderHash', asyncHandler(handlers_1.Handlers.getOrderByHashAsync.bind(handlers_1.Handlers)));
-    app.get('/v2/test_order', (req, res) => {
-        res.status(200).render('create', {});
-    })
     app.use(error_handling_1.errorHandler);
     app.listen(config.HTTP_PORT, () => {
         utils_1.utils.log(

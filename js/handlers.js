@@ -3,28 +3,19 @@ Object.defineProperty(exports, '__esModule', { value: true });
 const _0x_js_1 = require('0x.js');
 const json_schemas_1 = require('@0x/json-schemas');
 const web3_wrapper_1 = require('@0x/web3-wrapper');
+const { Web3Wrapper } = require('@0x/web3-wrapper');
+const web3 = require('web3');
 const HttpStatus = require('http-status-codes');
 const _ = require('lodash');
 const config_1 = require('./config');
+const { NETWORK_CONFIGS, TX_DEFAULTS } = require('./configs_starter');
 const constants_1 = require('./constants');
+const contracts_1 = require('./contracts');
+const { providerEngine } = require('./provider_engine');
 const errors_1 = require('./errors');
 const orderbook_1 = require('./orderbook');
 const paginator_1 = require('./paginator');
 const utils_1 = require('./utils');
-
-//imports from Felix Lepoutre
-const path = require('path');
-const publicPath = path.join(__dirname,'../public');
-// const provider_engine_1 = require("../provider_engine");
-// const configs_1 = require("../configs.js");
-
-// var contractWrappers, web3Wrapper;
-// contractWrappers = new _0x_js_1.ContractWrappers(provider_engine_1.providerEngine, { networkId: configs_1.NETWORK_CONFIGS.networkId });
-// web3Wrapper = new web3_wrapper_1.Web3Wrapper(provider_engine_1.providerEngine);
-// web3Wrapper.getAvailableAddressesAsync().then((addresses) => {
-//     console.log(addresses);
-// });
-
 const parsePaginationConfig = req => {
     const page = _.isUndefined(req.query.page) ? constants_1.DEFAULT_PAGE : Number(req.query.page);
     const perPage = _.isUndefined(req.query.perPage) ? constants_1.DEFAULT_PER_PAGE : Number(req.query.perPage);
@@ -93,8 +84,7 @@ class Handlers {
         utils_1.utils.validateSchema(req.query, json_schemas_1.schemas.ordersRequestOptsSchema);
         const { page, perPage } = parsePaginationConfig(req);
         const paginatedOrders = await this._orderBook.getOrdersAsync(page, perPage, req.query);
-        //res.status(HttpStatus.OK).send(paginatedOrders);
-        res.status(HttpStatus.OK).render('index', { pagename: 'TEST', data: paginatedOrders });
+        res.status(HttpStatus.OK).send(paginatedOrders);
     }
     async orderbookAsync(req, res) {
         utils_1.utils.validateSchema(req.query, json_schemas_1.schemas.orderBookRequestSchema);
@@ -125,49 +115,38 @@ class Handlers {
         }
         res.status(HttpStatus.OK).send();
     }
+    //Test to talk via web3 by Felix Lepoutre
+    async test(req, res) {
+        const web3Wrapper = new Web3Wrapper(providerEngine);
+        const [maker, taker] = await web3Wrapper.getAvailableAddressesAsync();
+        const contractAddresses = contracts_1.contractAddresses;
+        const zrxTokenAddress = contractAddresses.zrxToken;
+        const etherTokenAddress = contractAddresses.etherToken;
+        res.status(HttpStatus.OK).send(maker + ' || ' + taker);
+
+        //res.status(HttpStatus.OK).send('test');
+    }
     //Function by Felix Lepoutre
     async signAndPostOrderAsync(req, res) {
         const completeOrder = await completeOrderAsync(req.body);
-        console.log(completeOrder);
-        utils_1.utils.validateSchema(completeOrder, json_schemas_1.schemas.signedOrderSchema);
-        if (config_1.WHITELISTED_TOKENS !== '*') {
-            const allowedTokens = config_1.WHITELISTED_TOKENS;
-            validateAssetDataIsWhitelistedOrThrow(allowedTokens, completeOrder.makerAssetData, 'makerAssetData');
-            validateAssetDataIsWhitelistedOrThrow(allowedTokens, completeOrder.takerAssetData, 'takerAssetData');
-        }
-        try {
-            await this._orderBook.addOrderAsync(completeOrder);
-        } catch (err) {
-            throw new errors_1.ValidationError([
-                {
-                    field: 'completeOrder',
-                    code: errors_1.ValidationErrorCodes.InvalidOrder,
-                    reason: err.message,
-                },
-            ]);
-        }
-        res.status(HttpStatus.OK).send();
-    }
-    async getHexAsync(req, res) {
-        const completeOrder = await returnHexAsync(req.body);
-        console.log(completeOrder);
-        utils_1.utils.validateSchema(completeOrder, json_schemas_1.schemas.signedOrderSchema);
-        if (config_1.WHITELISTED_TOKENS !== '*') {
-            const allowedTokens = config_1.WHITELISTED_TOKENS;
-            validateAssetDataIsWhitelistedOrThrow(allowedTokens, completeOrder.makerAssetData, 'makerAssetData');
-            validateAssetDataIsWhitelistedOrThrow(allowedTokens, completeOrder.takerAssetData, 'takerAssetData');
-        }
-        try {
-            await this._orderBook.addOrderAsync(completeOrder);
-        } catch (err) {
-            throw new errors_1.ValidationError([
-                {
-                    field: 'completeOrder',
-                    code: errors_1.ValidationErrorCodes.InvalidOrder,
-                    reason: err.message,
-                },
-            ]);
-        }
+        // console.log(completeOrder);
+        // utils_1.utils.validateSchema(completeOrder, json_schemas_1.schemas.signedOrderSchema);
+        // if (config_1.WHITELISTED_TOKENS !== '*') {
+        //     const allowedTokens = config_1.WHITELISTED_TOKENS;
+        //     validateAssetDataIsWhitelistedOrThrow(allowedTokens, completeOrder.makerAssetData, 'makerAssetData');
+        //     validateAssetDataIsWhitelistedOrThrow(allowedTokens, completeOrder.takerAssetData, 'takerAssetData');
+        // }
+        // try {
+        //     await this._orderBook.addOrderAsync(completeOrder);
+        // } catch (err) {
+        //     throw new errors_1.ValidationError([
+        //         {
+        //             field: 'completeOrder',
+        //             code: errors_1.ValidationErrorCodes.InvalidOrder,
+        //             reason: err.message,
+        //         },
+        //     ]);
+        // }
         res.status(HttpStatus.OK).send(completeOrder);
     }
 }
@@ -206,6 +185,13 @@ function unmarshallOrder(signedOrderRaw) {
 //Function to sign raw order by Felix Lepoutre
 async function completeOrderAsync(order){
     const unsignedOrderRaw = order;
+    const contractWrappers = new _0x_js_1.ContractWrappers(providerEngine, { networkId: NETWORK_CONFIGS.networkId });
+    const web3Wrapper = new Web3Wrapper(providerEngine);
+    console.log(providerEngine);
+    const [maker, taker] = await web3Wrapper.getAvailableAddressesAsync();
+
+    console.log('wrapper made');
+
     let unsignedOrder = {
         ...unsignedOrderRaw,
         salt: new _0x_js_1.generatePseudoRandomSalt(),
@@ -217,47 +203,36 @@ async function completeOrderAsync(order){
         takerFee: new _0x_js_1.BigNumber(config_1.TAKER_FEE_ZRX_UNIT_AMOUNT),
         expirationTimeSeconds: new _0x_js_1.BigNumber(unsignedOrderRaw.expirationTimeSeconds),
     };
-    const makerAddress = unsignedOrder.makerAssetAddress;
+    const makerAssetAddress = unsignedOrder.makerAssetAddress;
+    const takerAssetAddress = unsignedOrder.takerAssetAddress;
     delete unsignedOrder.makerAssetAddress;
     delete unsignedOrder.takerAssetAddress;
 
-    const completeOrder = {
-        ...unsignedOrder,
-        signature: _0x_js_1.orderHashUtils.getOrderHashHex(unsignedOrder),
-    }
-    
-    console.log('engine: ', provider_engine_1.providerEngine);
+    console.log('order unsigned');
+    const makerZRXApprovalTxHash = await contractWrappers.erc20Token.setUnlimitedProxyAllowanceAsync(
+        makerAssetAddress,
+        unsignedOrder.makerAddress,
+    );
+    // if(unsignedOrder.takerAddress != '0x0000000000000000000000000000000000000000'){
+    //     const takerWETHApprovalTxHash = await contractWrappers.erc20Token.setUnlimitedProxyAllowanceAsync(
+    //         takerAssetAddress,
+    //         unsignedOrder.takerAddress,
+    //     );
+    //     const takerWETHDepositTxHash = await contractWrappers.etherToken.depositAsync(
+    //         takerAssetAddress,
+    //         unsignedOrder.takerAssetAmount,
+    //         unsignedOrder.takerAddress,
+    //     );
+    // }
 
-    const signedOrder = await _0x_js_1.signatureUtils.ecSignOrderAsync(provider_engine_1.providerEngine, unsignedOrder, makerAddress);
-    return(signedOrder);
-}
+    console.log('allowances set');
 
-async function returnHexAsync(order){
-    const unsignedOrderRaw = order;
-    let unsignedOrder = {
-        ...unsignedOrderRaw,
-        salt: new _0x_js_1.generatePseudoRandomSalt(),
-        makerAssetData: _0x_js_1.assetDataUtils.encodeERC20AssetData(unsignedOrderRaw.makerAssetAddress),
-        takerAssetData: _0x_js_1.assetDataUtils.encodeERC20AssetData(unsignedOrderRaw.takerAssetAddress),
-        makerAssetAmount: new _0x_js_1.BigNumber(unsignedOrderRaw.makerAssetAmount),
-        takerAssetAmount: new _0x_js_1.BigNumber(unsignedOrderRaw.takerAssetAmount),
-        makerFee: new _0x_js_1.BigNumber(config_1.MAKER_FEE_ZRX_UNIT_AMOUNT),
-        takerFee: new _0x_js_1.BigNumber(config_1.TAKER_FEE_ZRX_UNIT_AMOUNT),
-        expirationTimeSeconds: new _0x_js_1.BigNumber(unsignedOrderRaw.expirationTimeSeconds),
-    };
-    const makerAddress = unsignedOrder.makerAssetAddress;
-    delete unsignedOrder.makerAssetAddress;
-    delete unsignedOrder.takerAssetAddress;
-
-    const completeOrder = {
-        ...unsignedOrder,
-        signature: _0x_js_1.orderHashUtils.getOrderHashHex(unsignedOrder),
-    }
+    const orderHashHex = _0x_js_1.orderHashUtils.getOrderHashHex(unsignedOrder);
+    console.log('got hex');
+    const signature = await _0x_js_1.signatureUtils.ecSignHashAsync(providerEngine, orderHashHex, unsignedOrder.makerAddress);
+    console.log('signed');
+    const completeOrder = { ...unsignedOrder, signature }
+    console.log('created the order');
 
     return(completeOrder);
-
 }
-
- 
-// console.log('test3');
-// console.log(signedOrder);
