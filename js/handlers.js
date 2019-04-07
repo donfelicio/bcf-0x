@@ -15,15 +15,15 @@ const utils_1 = require('./utils');
 //imports from Felix Lepoutre
 const path = require('path');
 const publicPath = path.join(__dirname,'../public');
-const provider_engine_1 = require("../provider_engine");
-const configs_1 = require("../configs.js");
+// const provider_engine_1 = require("../provider_engine");
+// const configs_1 = require("../configs.js");
 
-var contractWrappers, web3Wrapper;
-contractWrappers = new _0x_js_1.ContractWrappers(provider_engine_1.providerEngine, { networkId: configs_1.NETWORK_CONFIGS.networkId });
-web3Wrapper = new web3_wrapper_1.Web3Wrapper(provider_engine_1.providerEngine);
-web3Wrapper.getAvailableAddressesAsync().then((addresses) => {
-    console.log(addresses);
-});
+// var contractWrappers, web3Wrapper;
+// contractWrappers = new _0x_js_1.ContractWrappers(provider_engine_1.providerEngine, { networkId: configs_1.NETWORK_CONFIGS.networkId });
+// web3Wrapper = new web3_wrapper_1.Web3Wrapper(provider_engine_1.providerEngine);
+// web3Wrapper.getAvailableAddressesAsync().then((addresses) => {
+//     console.log(addresses);
+// });
 
 const parsePaginationConfig = req => {
     const page = _.isUndefined(req.query.page) ? constants_1.DEFAULT_PAGE : Number(req.query.page);
@@ -226,8 +226,9 @@ async function completeOrderAsync(order){
         signature: _0x_js_1.orderHashUtils.getOrderHashHex(unsignedOrder),
     }
     
-    // console.log(web3.currentProvider);
-    const signedOrder = await _0x_js_1.signatureUtils.ecSignHashAsync(provider_engine_1.providerEngine, completeOrder.signature, makerAddress);
+    console.log('engine: ', provider_engine_1.providerEngine);
+
+    const signedOrder = await _0x_js_1.signatureUtils.ecSignOrderAsync(provider_engine_1.providerEngine, unsignedOrder, makerAddress);
     return(signedOrder);
 }
 

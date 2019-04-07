@@ -17,7 +17,12 @@ var EnvVarType;
     EnvVarType[(EnvVarType['Url'] = 4)] = 'Url';
 })(EnvVarType || (EnvVarType = {}));
 // Whitelisted token addresses. Set to a '*' instead of an array to allow all tokens.
-exports.WHITELISTED_TOKENS = '*';
+exports.WHITELISTED_TOKENS = [
+    '0x2002d3812f58e35f0ea1ffbf80a75a38c32175fa',
+    '0xd0a1e359811322d97991e03f863a0c30c2cf029c',
+    '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+    '0xe41d2489571d322189246dafa5ebde1f4699f498',
+];
 // Network port to listen on
 exports.HTTP_PORT = _.isEmpty(process.env.HTTP_PORT)
     ? 3000
@@ -40,7 +45,7 @@ exports.TAKER_FEE_ZRX_UNIT_AMOUNT = _.isEmpty(process.env.TAKER_FEE_ZRX_UNIT_AMO
     : assertEnvVarType('TAKER_FEE_ZRX_UNIT_AMOUNT', process.env.TAKER_FEE_ZRX_UNIT_AMOUNT, EnvVarType.UnitAmount);
 // Ethereum RPC url
 exports.RPC_URL = _.isEmpty(process.env.RPC_URL)
-    ? 'http://127.0.0.1:8545'
+    ? 'http://127.0.0.1:3000'
     : assertEnvVarType('RPC_URL', process.env.RPC_URL, EnvVarType.Url);
 // A time window after which the order is considered permanently expired
 exports.ORDER_SHADOWING_MARGIN_MS = 100 * 1000; // tslint:disable-line custom-no-magic-numbers
