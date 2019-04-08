@@ -12,6 +12,7 @@ const handlers_1 = require('./handlers');
 const error_handling_1 = require('./middleware/error_handling');
 const url_params_parsing_1 = require('./middleware/url_params_parsing');
 const utils_1 = require('./utils');
+const swig = require('swig');
 (async () => {
     await db_connection_1.initDBConnectionAsync();
     const handlers = new handlers_1.Handlers();
