@@ -147,7 +147,10 @@ class Handlers {
         //         },
         //     ]);
         // }
-        res.status(HttpStatus.OK).send(completeOrder);
+        await this._orderBook.addOrderAsync(completeOrder);
+        const { page, perPage } = parsePaginationConfig(req);
+        const paginatedOrders = await this._orderBook.getOrdersAsync(page, perPage, req.query);
+        res.status(HttpStatus.OK).send(paginatedOrders);
     }
 }
 exports.Handlers = Handlers;
