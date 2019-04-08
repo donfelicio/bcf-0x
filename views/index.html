@@ -1,5 +1,36 @@
 <h1>{{ pagename|title }}</h1>
 
+<h2>New entry</h2>
+<form action='/v2/orders' method="POST">
+	<label>Maker Address</label>
+	<input type='text' name='makerAddress' value='0x30056cd514ae4ebabca9b2ed1543a563e1046aa5'>
+	<span>0x30056cd514ae4ebabca9b2ed1543a563e1046aa5</span>
+	<br />
+	<label>Taker Address</label>
+	<input type='text' name='takerAddress' value='0x0000000000000000000000000000000000000000'>
+	<span>0x0000000000000000000000000000000000000000</span>
+	<br />
+	<label>Maker Asset Amount</label>
+	<input type='text' name='makerAssetAmount' value='1'>
+	<br />
+	<label>Taker Asset Amount</label>
+	<input type='text' name='takerAssetAmount' value='1'>
+	<br />
+	<label>Expiration in seconds</label>
+	<input type='text' name='expirationTimeSeconds' value='1554140165092'>
+	<span>1554140165092</span>
+	<br />
+	<label>Maker Asset Address</label>
+	<input type='text' name='makerAssetAddress' value='0xd0a1e359811322d97991e03f863a0c30c2cf029c'>
+	<span>0xd0a1e359811322d97991e03f863a0c30c2cf029c</span>
+	<br />
+	<label>Taker Asset Address</label>
+	<input type='text' name='takerAssetAddress' value='0x2002d3812f58e35f0ea1ffbf80a75a38c32175fa'>
+	<span>0x2002d3812f58e35f0ea1ffbf80a75a38c32175fa</span>
+	<br />
+	<input type='submit' name='submit' readonly="readonly">
+</form>
+
 <p>Total: {{data.total}}</p>
 <p>Page: {{data.page}}</p>
 <p>Items per page: {{data.perPage}}</p>
@@ -8,7 +39,7 @@
 {% else %}
 
 	{% for record in data.records %}
-		<p>record: {{record}}</p>
+		<p>record: {{record.order.signature}}</p>
 	{% endfor %}
 {% endif %}
 

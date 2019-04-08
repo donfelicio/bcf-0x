@@ -28,6 +28,7 @@ const swig = require('swig');
     app.use(cors());
     app.use(bodyParser.json());
     app.use(url_params_parsing_1.urlParamsParsing);
+    app.use(express.urlencoded());
     /**
      * GET AssetPairs endpoint retrieves a list of available asset pairs and the information required to trade them.
      * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/getAssetPairs
@@ -63,11 +64,12 @@ const swig = require('swig');
      * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/getOrder
      */
      app.get('/v2/test', asyncHandler(handlers.test.bind(handlers)));
+
     /**
      * GET Order endpoint retrieves the order by order hash.
      * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/getOrder
      */
-     app.post('/v2/sign_order', asyncHandler(handlers.signAndPostOrderAsync.bind(handlers)));
+     app.post('/v2/orders', asyncHandler(handlers.signAndPostOrderAsync.bind(handlers)));
     /**
      * GET Order endpoint retrieves the order by order hash.
      * http://sra-spec.s3-website-us-east-1.amazonaws.com/#operation/getOrder

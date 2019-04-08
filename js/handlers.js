@@ -86,7 +86,7 @@ class Handlers {
         const paginatedOrders = await this._orderBook.getOrdersAsync(page, perPage, req.query);
         //res.status(HttpStatus.OK).send(paginatedOrders);
         res.status(HttpStatus.OK).render('index', { pagename: 'TEST', data: paginatedOrders });
-        console.log(paginatedOrders)
+        //console.log(paginatedOrders.records)
     }
     async orderbookAsync(req, res) {
         utils_1.utils.validateSchema(req.query, json_schemas_1.schemas.orderBookRequestSchema);
@@ -152,7 +152,9 @@ class Handlers {
         await this._orderBook.addOrderAsync(completeOrder);
         const { page, perPage } = parsePaginationConfig(req);
         const paginatedOrders = await this._orderBook.getOrdersAsync(page, perPage, req.query);
-        res.status(HttpStatus.OK).send(paginatedOrders);
+        //res.status(HttpStatus.OK).send(paginatedOrders);
+        res.status(HttpStatus.OK).render('index', { pagename: 'TEST', data: paginatedOrders });
+        //console.log(paginatedOrders.records)
     }
 }
 exports.Handlers = Handlers;
@@ -192,7 +194,6 @@ async function completeOrderAsync(order){
     const unsignedOrderRaw = order;
     const contractWrappers = new _0x_js_1.ContractWrappers(providerEngine, { networkId: NETWORK_CONFIGS.networkId });
     const web3Wrapper = new Web3Wrapper(providerEngine);
-    console.log(providerEngine);
     const [maker, taker] = await web3Wrapper.getAvailableAddressesAsync();
 
     console.log('wrapper made');
@@ -200,6 +201,9 @@ async function completeOrderAsync(order){
     let unsignedOrder = {
         ...unsignedOrderRaw,
         salt: new _0x_js_1.generatePseudoRandomSalt(),
+        senderAddress: '0x0000000000000000000000000000000000000000',
+        exchangeAddress: '0x35dd2932454449b14cee11a94d3674a936d5d7b2',
+        feeRecipientAddress: '0x0000000000000000000000000000000000000000',
         makerAssetData: _0x_js_1.assetDataUtils.encodeERC20AssetData(unsignedOrderRaw.makerAssetAddress),
         takerAssetData: _0x_js_1.assetDataUtils.encodeERC20AssetData(unsignedOrderRaw.takerAssetAddress),
         makerAssetAmount: new _0x_js_1.BigNumber(unsignedOrderRaw.makerAssetAmount),
@@ -218,17 +222,6 @@ async function completeOrderAsync(order){
         makerAssetAddress,
         unsignedOrder.makerAddress,
     );
-    // if(unsignedOrder.takerAddress != '0x0000000000000000000000000000000000000000'){
-    //     const takerWETHApprovalTxHash = await contractWrappers.erc20Token.setUnlimitedProxyAllowanceAsync(
-    //         takerAssetAddress,
-    //         unsignedOrder.takerAddress,
-    //     );
-    //     const takerWETHDepositTxHash = await contractWrappers.etherToken.depositAsync(
-    //         takerAssetAddress,
-    //         unsignedOrder.takerAssetAmount,
-    //         unsignedOrder.takerAddress,
-    //     );
-    // }
 
     console.log('allowances set');
 
