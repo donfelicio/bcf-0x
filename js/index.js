@@ -17,6 +17,13 @@ const utils_1 = require('./utils');
     const handlers = new handlers_1.Handlers();
     await handlers.initOrderBookAsync();
     const app = express();
+
+    // This is where all swig the magic happens!
+    app.engine('html', swig.renderFile);
+
+    app.set('view engine', 'html'); 
+    app.set('views', __dirname + '/../views');
+
     app.use(cors());
     app.use(bodyParser.json());
     app.use(url_params_parsing_1.urlParamsParsing);
